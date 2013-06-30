@@ -45,7 +45,11 @@ define(function (require, exports, module) {
     //
     // Taken from:
     //   http://stackoverflow.com/questions/3277182/how-to-get-the-global-object-in-javascript
-    var Fn = Function, global = (new Fn("return this"))();
+    if (chrome.runtime) {
+        global = window;
+    } else {
+        var Fn = Function, global = (new Fn("return this"))();        
+    }
     if (!global.brackets) {
         global.brackets = {};
     }
