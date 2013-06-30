@@ -23,7 +23,7 @@
 
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, $, CodeMirror, brackets, window */
+/*global define, $, CodeMirror, brackets, window, chrome */
 
 /**
  * ExtensionLoader searches the filesystem for extensions, then creates a new context for each one and loads it.
@@ -65,7 +65,11 @@ define(function (require, exports, module) {
      * C:\Users\<user>\AppData\Roaming\Brackets\extensions\user on windows.
      */
     function getUserExtensionPath() {
-        return brackets.app.getApplicationSupportDirectory() + "/extensions/user";
+        if (chrome.runtime) {
+            return "/extensions/user";
+        } else {
+            return brackets.app.getApplicationSupportDirectory() + "/extensions/user";
+        }
     }
     
     /**
