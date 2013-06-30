@@ -83,14 +83,15 @@ define(function (require, exports, module) {
     
     global.brackets.getLocale = function () {
         // By default use the locale that was determined in brackets.js
-        return global.localStorage.getItem("locale") || global.require.s.contexts._.config.locale;
+        //return global.localStorage.getItem("locale") || global.require.s.contexts._.config.locale;
+        return navigator.locale;
     };
 
     global.brackets.setLocale = function (locale) {
         if (locale) {
-            global.localStorage.setItem("locale", locale);
+            //global.localStorage.setItem("locale", locale);
         } else {
-            global.localStorage.removeItem("locale");
+            //global.localStorage.removeItem("locale");
         }
     };
     
