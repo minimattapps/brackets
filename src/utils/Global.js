@@ -77,6 +77,8 @@ define(function (require, exports, module) {
         global.brackets.platform = "mac";
     } else if (global.navigator.platform.indexOf("Linux") >= 0) {
         global.brackets.platform = "linux";
+    } else if (chrome.runtime) {
+        global.brackets.platform = "ChromeApp";
     } else {
         global.brackets.platform = "win";
     }

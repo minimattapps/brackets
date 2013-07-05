@@ -270,7 +270,7 @@ define(function (require, exports, module) {
         }
 
         // Enable/Disable HTML Menus
-        if (brackets.platform !== "linux") {
+        if (brackets.platform !== "linux" && brackets.platform !== "ChromeApp") {
             $("body").addClass("has-appshell-menus");
         }
         
