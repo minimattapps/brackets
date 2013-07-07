@@ -156,11 +156,13 @@ define(function (require, exports, module) {
         };
 
         AppInit.appReady(function () {
+		    
             brackets.test.doneLoading = true;
         });
     }
             
     function _onReady() {
+	   
         PerfUtils.addMeasurement("window.document Ready");
         
         EditorManager.setEditorHolder($("#editor-holder"));
