@@ -23,7 +23,7 @@
 
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, $, CodeMirror, brackets, window, chrome */
+/*global define, $, CodeMirror, brackets, window, chrome, PathUtils */
 
 /**
  * ExtensionLoader searches the filesystem for extensions, then creates a new context for each one and loads it.
@@ -66,7 +66,7 @@ define(function (require, exports, module) {
      */
     function getUserExtensionPath() {
         if (chrome.runtime) {
-            return "/extensions/user";
+            return "";
         } else {
             return brackets.app.getApplicationSupportDirectory() + "/extensions/user";
         }
@@ -280,6 +280,35 @@ define(function (require, exports, module) {
         if (_init) {
             // Only init once. Return a resolved promise.
             return new $.Deferred().resolve().promise();
+        }
+		
+		 if (chrome.runtime) {
+            var basePath = PathUtils.directory(window.location.href) + "extensions/default/",
+                defaultExtensions = [
+                    "CSSCodeHints",
+                    //"DebugCommands",
+                    "HTMLCodeHints",
+                    "HtmlEntityCodeHints",
+                    "InlineColorEditor",
+                    //"JavaScriptCodeHints",
+                    "JavaScriptQuickEdit",
+                    "JSLint",
+                    "LESSSupport",
+                    "QuickOpenCSS",
+                    "QuickOpenHTML",
+                    "QuickOpenJavaScript",
+                    "QuickView",
+                    "RecentProjects",
+                    //"StaticServer",
+                    "WebPlatformDocs"
+                ];
+            
+            return Async.doInParallel(defaultExtensions, function (item) {
+                var extConfig = {
+                    baseUrl: basePath + item
+                };
+                return loadExtension(item, extConfig, "main");
+            });
         }
         
         if (!paths) {
