@@ -34,6 +34,7 @@
 define(function (require, exports, module) {
     "use strict";
     
+	var HTMLIntegration = require("file/HTMLIntegration");
     var configJSON = require("text!config.json");
     
     // Define core brackets namespace if it isn't already defined
@@ -105,6 +106,10 @@ define(function (require, exports, module) {
     if (!global.brackets.app) {
         global.brackets.app = {};
     }
+	
+	if (chrome.runtime) {
+        HTMLIntegration.init();
+   }
     
     // Loading extensions requires creating new require.js contexts, which
     // requires access to the global 'require' object that always gets hidden

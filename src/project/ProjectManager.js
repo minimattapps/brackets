@@ -809,6 +809,10 @@ define(function (require, exports, module) {
      * first launch. 
      */
     function getInitialProjectPath() {
+	if (chrome.runtime) {
+            
+            return "/";
+       }
         return updateWelcomeProjectPath(_prefs.getValue("projectPath"));
     }
     
@@ -853,7 +857,7 @@ define(function (require, exports, module) {
         _projectInitialLoad.previous = _prefs.getValue(_getTreeStateKey(rootPath)) || [];
 
         // Populate file tree as long as we aren't running in the browser
-        if (!brackets.inBrowser) {
+        if (1) {
             // Point at a real folder structure on local disk
             NativeFileSystem.requestNativeFileSystem(rootPath,
                 function (fs) {
@@ -913,16 +917,14 @@ define(function (require, exports, module) {
                             error.name
                         )
                     ).done(function () {
-                        // The project folder stored in preference doesn't exist, so load the default 
-                        // project directory.
-                        // TODO (issue #267): When Brackets supports having no project directory
-                        // defined this code will need to change
-                        _loadProject(_getWelcomeProjectPath()).always(function () {
-                            // Make sure not to reject the original deferred until the fallback
-                            // project is loaded, so we don't violate expectations that there is always
-                            // a current project before continuing after _loadProject().
-                            result.reject();
-                        });
+                        if (!chrome.runtime) {
+                            _loadProject(_getWelcomeProjectPath()).always(function () {
+                                // Make sure not to reject the original deferred until the fallback
+                                // project is loaded, so we don't violate expectations that there is always
+                                // a current project before continuing after _loadProject().
+                                result.reject();
+                            });
+                       }
                     });
                 }
                 );
