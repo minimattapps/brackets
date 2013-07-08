@@ -36,41 +36,44 @@ define(function (require, exports, module) {
     var fs = null;
     
     
-
-    function errorHandler(e) {
-        var msg = '';
-        
-        switch (e.code) {
-        case window.FileError.QUOTA_EXCEEDED_ERR:
-            msg = 'QUOTA_EXCEEDED_ERR';
-            break;
-        case window.FileError.NOT_FOUND_ERR:
-            msg = 'NOT_FOUND_ERR';
-            break;
-        case window.FileError.SECURITY_ERR:
-            msg = 'SECURITY_ERR';
-            break;
-        case window.FileError.INVALID_MODIFICATION_ERR:
-            msg = 'INVALID_MODIFICATION_ERR';
-            break;
-        case window.FileError.INVALID_STATE_ERR:
-            msg = 'INVALID_STATE_ERR';
-            break;
-        default:
-            msg = 'Unknown Error';
-            break;
-        }
-        
-        console.log('Error: ' + msg);
+    function createErrorHandler(callback) {
+        return function handler(error) {
+            var msg = '';
+            
+            switch (error.code) {
+            case window.FileError.QUOTA_EXCEEDED_ERR:
+                msg = 'QUOTA_EXCEEDED_ERR';
+                break;
+            case window.FileError.NOT_FOUND_ERR:
+                msg = 'NOT_FOUND_ERR';
+                break;
+            case window.FileError.SECURITY_ERR:
+                msg = 'SECURITY_ERR';
+                break;
+            case window.FileError.INVALID_MODIFICATION_ERR:
+                msg = 'INVALID_MODIFICATION_ERR';
+                break;
+            case window.FileError.INVALID_STATE_ERR:
+                msg = 'INVALID_STATE_ERR';
+                break;
+            default:
+                msg = 'Unknown Error';
+                break;
+            }
+            
+            console.error('Error: ' + msg);
+            
+            if (typeof callback === "function") {
+                //callback(error, null);
+            }
+        };
     }
-    
     
     
     function readdir(path, callback) {
         console.log("READ DIR: " + path);
-       // client.readdir(path, function (error, entries) {
-       //     callback(mapError(error), entries);
-       // });
+        
+        var errorHandler = createErrorHandler(callback);
 
         if (path === "/") {
             var dirReader = fs.root.createReader();
@@ -99,10 +102,10 @@ define(function (require, exports, module) {
     }
     
     function makedir(path, mode, callback) {
-        //  client.mkdir(path, function (error) {
-        //      callback(mapError(error));
-        //  });
         console.log('makedir ' + path);
+        
+        var errorHandler = createErrorHandler(callback);
+        
         fs.root.getDirectory(path, {create: true}, function () {
             callback(brackets.fs.NO_ERROR);
         }, errorHandler);
@@ -114,17 +117,8 @@ define(function (require, exports, module) {
     
     function stat(path, callback) {
         console.log("STAT:" + path);
-        // client.stat(path, function (error, data) {
-        //     callback(mapError(error), {
-        //         isFile: function () {
-        //             return data.isFile;
-        //        },
-        //        isDirectory: function () {
-        //            return data.isFolder;
-        //        },
-        //        mtime: data && data.modifiedAt
-        //    });
-        // });
+        
+        var errorHandler = createErrorHandler(callback);
 	   
         if (path === "/") {
             callback(brackets.fs.NO_ERROR, {
@@ -177,9 +171,9 @@ define(function (require, exports, module) {
     }
     
     function readFile(path, encoding, callback) {
-        // client.readFile(path, function (error, data) {
-        //     callback(mapError(error), data);
-        // });
+        
+        var errorHandler = createErrorHandler(callback);
+        
         fs.root.getFile(path, {}, function (fileEntry) {
 
             // Get a File object representing the file,
@@ -199,6 +193,9 @@ define(function (require, exports, module) {
     }
     
     function writeFile(path, data, encoding, callback) {
+        
+        var errorHandler = createErrorHandler(callback);
+        
         fs.root.getFile(path, {create: true}, function (fileEntry) {
 
             // Create a FileWriter object for our FileEntry (log.txt).
@@ -226,6 +223,8 @@ define(function (require, exports, module) {
     function rename(oldPath, newPath, callback) {
         console.log("RENAME: " + oldPath);
         
+        var errorHandler = createErrorHandler(callback);
+        
         var newDirName = newPath.substr(0, newPath.lastIndexOf("/") + 1),
             newFileName = newPath.substr(newPath.lastIndexOf("/") + 1);
         
@@ -249,6 +248,9 @@ define(function (require, exports, module) {
 	
     function unlink(path, callback) {
         console.log("DELETE: " + path);
+        
+        var errorHandler = createErrorHandler(callback);
+        
         if (path.indexOf(".") !== -1) {
             fs.root.getFile(path, {create: false}, function (fileEntry) {
 
@@ -312,7 +314,7 @@ define(function (require, exports, module) {
 
     
     function init() {
-        window.webkitRequestFileSystem(window.PERSISTENT, 128 * 1024 * 1024 /* 5MB */, onInitFs, errorHandler);
+        window.webkitRequestFileSystem(window.PERSISTENT, 128 * 1024 * 1024 /* 5MB */, onInitFs, createErrorHandler());
        
     }
     
