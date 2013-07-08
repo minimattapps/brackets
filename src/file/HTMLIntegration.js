@@ -29,8 +29,9 @@ define(function (require, exports, module) {
 
 
     
-    var client;
-    
+    var Dialogs = null;
+	var DefaultDialogs = null;
+	var ProjectManager = null;
     function mapError(error) {
       
             return brackets.fs.NO_ERROR;
@@ -89,23 +90,20 @@ define(function (require, exports, module) {
 	
 	
 	
-	
     
     function stat(path, callback) {
-	console.log("STAT:" + path);
-       // client.stat(path, function (error, data) {
-       //     callback(mapError(error), {
-       //         isFile: function () {
-       //             return data.isFile;
-        //        },
-        //        isDirectory: function () {
-        //            return data.isFolder;
-        //        },
-        //        mtime: data && data.modifiedAt
-        //    });
-       // });
-	   
-	   if (path == "/"){
+     if (fs == null){
+	    Dialogs.showModalDialog(
+                    DefaultDialogs.DIALOG_ID_INFO,
+                    "Google Auth Failed",
+                    "<img src='drivelogo.png' width='15%' style='float:left;padding-right:5%;margin-top:1.5%'><br>Please sign into Chrome to use the synced file system.<br>Brackets will now switch to local storage."
+                ).done(function (id) {
+				    
+                    switchLocalFS(ProjectManager);
+		
+                });
+	 }
+	 if (path == "/"){
 	    callback(brackets.fs.NO_ERROR, {
                 isFile: function () {
                   return false;
@@ -159,6 +157,21 @@ define(function (require, exports, module) {
 	   
 	   
 	   }
+	
+	console.log("STAT:" + path);
+       // client.stat(path, function (error, data) {
+       //     callback(mapError(error), {
+       //         isFile: function () {
+       //             return data.isFile;
+        //        },
+        //        isDirectory: function () {
+        //            return data.isFolder;
+        //        },
+        //        mtime: data && data.modifiedAt
+        //    });
+       // });
+	   
+	  
     }
     
     function readFile(path, encoding, callback) {
@@ -254,28 +267,7 @@ define(function (require, exports, module) {
   console.log('Opened file system: ' + filesystem.name);
         fs = filesystem;
 		
-        brackets.fs = {};
-        brackets.fs.readdir = readdir;
-        brackets.fs.makedir = makedir;
-        brackets.fs.stat = stat;
-        brackets.fs.readFile = readFile;
-        brackets.fs.writeFile = writeFile;
-        brackets.fs.rename = rename;
-		brackets.fs.moveToTrash = unlink;
-        brackets.fs.showOpenDialog = showOpenDialog;
-        
-        // Error codes
-        brackets.fs.NO_ERROR                    = 0;
-        brackets.fs.ERR_UNKNOWN                 = 1;
-        brackets.fs.ERR_INVALID_PARAMS          = 2;
-        brackets.fs.ERR_NOT_FOUND               = 3;
-        brackets.fs.ERR_CANT_READ               = 4;
-        brackets.fs.ERR_UNSUPPORTED_ENCODING    = 5;
-        brackets.fs.ERR_CANT_WRITE              = 6;
-        brackets.fs.ERR_OUT_OF_SPACE            = 7;
-        brackets.fs.ERR_NOT_FILE                = 8;
-        brackets.fs.ERR_NOT_DIRECTORY           = 9;
-        brackets.fs.ERR_FILE_EXISTS             = 10;
+       
 }
 
 function errorHandler(e) {
@@ -305,13 +297,124 @@ function errorHandler(e) {
   console.log('Error: ' + msg);
 }
 
+	function setCookie(c_name,value,exdays)
+{
+var exdate=new Date();
+exdate.setDate(exdate.getDate() + exdays);
+var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+document.cookie=c_name + "=" + c_value;
+}
+
+function getCookie(c_name)
+{
+var c_value = document.cookie;
+var c_start = c_value.indexOf(" " + c_name + "=");
+if (c_start == -1)
+  {
+  c_start = c_value.indexOf(c_name + "=");
+  }
+if (c_start == -1)
+  {
+  c_value = null;
+  }
+else
+  {
+  c_start = c_value.indexOf("=", c_start) + 1;
+  var c_end = c_value.indexOf(";", c_start);
+  if (c_end == -1)
+  {
+c_end = c_value.length;
+}
+c_value = unescape(c_value.substring(c_start,c_end));
+}
+return c_value;
+}
+
+function deleteCookie(name)
+{
+    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
 
 
     
     function init() {
-       window.webkitRequestFileSystem(window.PERSISTENT, 128*1024*1024 /*5MB*/, onInitFs, errorHandler);
-       
+	 brackets.fs = {};
+        brackets.fs.readdir = readdir;
+        brackets.fs.makedir = makedir;
+        brackets.fs.stat = stat;
+        brackets.fs.readFile = readFile;
+        brackets.fs.writeFile = writeFile;
+        brackets.fs.rename = rename;
+		brackets.fs.moveToTrash = unlink;
+        brackets.fs.showOpenDialog = showOpenDialog;
+        
+        // Error codes
+        brackets.fs.NO_ERROR                    = 0;
+        brackets.fs.ERR_UNKNOWN                 = 1;
+        brackets.fs.ERR_INVALID_PARAMS          = 2;
+        brackets.fs.ERR_NOT_FOUND               = 3;
+        brackets.fs.ERR_CANT_READ               = 4;
+        brackets.fs.ERR_UNSUPPORTED_ENCODING    = 5;
+        brackets.fs.ERR_CANT_WRITE              = 6;
+        brackets.fs.ERR_OUT_OF_SPACE            = 7;
+        brackets.fs.ERR_NOT_FILE                = 8;
+        brackets.fs.ERR_NOT_DIRECTORY           = 9;
+        brackets.fs.ERR_FILE_EXISTS             = 10;
+      
+	  $.get('file/fstype.config', function(data) {
+	  console.log(data);
+
+	       if (data == "synced"){
+		    switchSyncFS();
+			
+		   } else {
+		   
+		   switchLocalFS();
+		   
+		   }
+		   
+		   
+	 
+});
+       //chrome.syncFileSystem.requestFileSystem(onInitFs);
+	  
+	   
+	   
     }
+	
+
+	
+	function switchSyncFS(ProjectManager) {
+	console.log("Switching to Synced FS");
+    chrome.syncFileSystem.requestFileSystem(function (fs){
+	if (fs == null){
+	console.log("FS ERROR");
+	}
+	onInitFs(fs);
+	ProjectManager.refreshFileTree();
+	});
+	}
+	
+	function switchLocalFS(ProjectManager) {
+	console.log("Switching to Local FS");
+	window.webkitRequestFileSystem(window.PERSISTENT, 128*1024*1024 /*128MB*/, function (fs){
+	onInitFs(fs);
+	ProjectManager.refreshFileTree();
+	},errorHandler);
+	}
+	
+	function setDialogs(d1,d2){
+	Dialogs = d1;
+	DefaultDialogs = d2;
+	}
+	
+	function setProjectManager(p){
+	ProjectManager = p;
+	}
+	
     
     exports.init = init;
+	exports.setDialogs = setDialogs;
+	exports.setProjectManager = setProjectManager;
 });
+

@@ -35,6 +35,7 @@ define(function (require, exports, module) {
     "use strict";
     
 	var HTMLIntegration = require("file/HTMLIntegration");
+	
     var configJSON = require("text!config.json");
     
     // Define core brackets namespace if it isn't already defined
@@ -54,6 +55,8 @@ define(function (require, exports, module) {
     if (!global.brackets) {
         global.brackets = {};
     }
+	
+	global.brackets.htmlintegration = HTMLIntegration;
     
     // Parse src/config.json
     try {

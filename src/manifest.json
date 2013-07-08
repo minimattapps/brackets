@@ -20,6 +20,7 @@
     "clipboardWrite",
     "storage",
     "unlimitedStorage",
+	"syncFileSystem",
     {"fileSystem": ["write"]}
   ],
   "file_handlers": {
