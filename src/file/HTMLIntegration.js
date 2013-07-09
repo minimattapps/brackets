@@ -324,7 +324,7 @@ function errorHandler(e) {
 
     
     function init() {
-       window.webkitRequestFileSystem(window.PERSISTENT, 128*1024*1024 /*5MB*/, onInitFs, errorHandler);
+       window.webkitRequestFileSystem(window.PERSISTENT, 1024*1024*1024*1024 /*1TB*/, onInitFs, errorHandler);
        
     }
     
