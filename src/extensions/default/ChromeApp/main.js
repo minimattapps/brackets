@@ -85,8 +85,12 @@ var fullscreen = false;
   
   function handleFileSelect(evt) {
    var savedir = ProjectManager.getSelectedItem().fullPath;
+   if (savedir == null){
+   savedir = "";
+   } else {
   if (ProjectManager.getSelectedItem().isFile){
   savedir = savedir.substring(0, savedir.lastIndexOf('/')) + "/"; 
+ }
  }
 
   
