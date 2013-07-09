@@ -208,14 +208,29 @@ define(function (require, exports, module) {
   }, errorHandler);
     }
     
-    function rename(oldPath, newPath, callback) {
-       // client.move(oldPath, newPath, function (error) {
-       //     callback(mapError(error));
-       // });
- 
+function rename(oldPath, newPath, callback) {
+    console.log("RENAME: " + oldPath);
 
+    var newDirName = newPath.substr(0, newPath.lastIndexOf("/") + 1),
+        newFileName = newPath.substr(newPath.lastIndexOf("/") + 1);
 
-    }
+    fs.root.getFile(oldPath, {create: false}, function (fileEntry) {
+        if (newDirName === "/") {
+            fileEntry.moveTo(fs.root, newFileName, function () {
+                callback(brackets.fs.NO_ERROR);
+            }, errorHandler);
+        } else {
+
+            fs.root.getDirectory(newDirName, {create: true}, function (dirEntry) {
+                fileEntry.moveTo(dirEntry, newFileName, function () {
+                    callback(brackets.fs.NO_ERROR);
+                }, errorHandler);
+            }, errorHandler);
+
+        }
+    }, errorHandler);
+
+}
 	
 	function unlink(path, callback){
 	console.log("DELETE: " + path);

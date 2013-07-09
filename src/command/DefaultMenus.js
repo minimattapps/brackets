@@ -182,7 +182,7 @@ define(function (require, exports, module) {
         var project_cmenu = Menus.registerContextMenu(Menus.ContextMenuIds.PROJECT_MENU);
         project_cmenu.addMenuItem(Commands.FILE_NEW);
         project_cmenu.addMenuItem(Commands.FILE_NEW_FOLDER);
-        //project_cmenu.addMenuItem(Commands.FILE_RENAME);
+        project_cmenu.addMenuItem(Commands.FILE_RENAME);
         //project_cmenu.addMenuItem(Commands.FILE_SAVE_AS);
         project_cmenu.addMenuItem(Commands.FILE_DELETE);
         //project_cmenu.addMenuItem(Commands.NAVIGATE_SHOW_IN_OS);
