@@ -317,7 +317,7 @@ define(function (require, exports, module) {
     
     function init() {
 
-        window.webkitRequestFileSystem(window.PERSISTENT, 128 * 1024 * 1024 /* 5MB */, onInitFs, createErrorHandler());
+        window.webkitRequestFileSystem(window.PERSISTENT, 1024*1024*1024*1024 /*1TB*/, onInitFs, createErrorHandler());
        
     }
     
