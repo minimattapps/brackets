@@ -108,6 +108,12 @@ define(function (require, exports, module) {
     }
 	
 	if (chrome.runtime) {
+
+	
+	//Enable quit function
+	    brackets.app.quit = function(){
+		window.close();
+		}
         HTMLIntegration.init();
    }
     
