@@ -10,11 +10,15 @@ define(function (require, exports, module) {
 
 var fullscreen = false;
     // Function to run when the menu item is clicked
-    function handleFullscreen() {
+ function handleFullscreen() {
 	    if (fullscreen == false){
-		//fullscreen = true;
+
+		chrome.app.window.current().fullscreen();
+		fullscreen = true;
+       
 		} else {
-		//fullscreen = false;
+		chrome.app.window.current().restore();
+		fullscreen = false;
 		}
     }
     
@@ -29,6 +33,9 @@ var fullscreen = false;
 
     
     // We could also add a key binding at the same time:
-   //menu.addMenuItem(MY_COMMAND_ID, "F11");
+    var ver = parseInt(window.navigator.appVersion.match(/Chrome\/(\d+)\./)[1], 10);
+    if (ver != 27){
+   menu.addMenuItem(MY_COMMAND_ID, "F11");
+   }
     // (Note: "Ctrl" is automatically mapped to "Cmd" on Mac)
 });
