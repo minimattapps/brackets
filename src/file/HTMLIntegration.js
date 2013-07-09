@@ -64,7 +64,7 @@ define(function (require, exports, module) {
             console.error('Error: ' + msg);
             
             if (typeof callback === "function") {
-                //callback(error, null);
+                callback(error, null);
             }
         };
     }
