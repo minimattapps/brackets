@@ -272,6 +272,7 @@ define(function (require, exports, module) {
 	
         }
     }
+
     
     function showOpenDialog(allowMultipleSelection, chooseDirectory, title, initialPath, fileTypes, callback) {
         alert("File/directory chooser not implemented yet");
@@ -284,6 +285,7 @@ define(function (require, exports, module) {
 	
     function onInitFs(filesystem) {
         console.log('Opened file system: ' + filesystem.name);
+
         fs = filesystem;
 		
         brackets.fs = {};
@@ -314,6 +316,7 @@ define(function (require, exports, module) {
 
     
     function init() {
+
         window.webkitRequestFileSystem(window.PERSISTENT, 128 * 1024 * 1024 /* 5MB */, onInitFs, createErrorHandler());
        
     }

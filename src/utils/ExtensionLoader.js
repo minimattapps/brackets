@@ -286,6 +286,7 @@ define(function (require, exports, module) {
             var basePath = PathUtils.directory(window.location.href) + "extensions/default/",
                 defaultExtensions = [
                     "CSSCodeHints",
+                    "ChromeApp",
                     //"DebugCommands",
                     "HTMLCodeHints",
                     "HtmlEntityCodeHints",
