@@ -198,57 +198,50 @@ define(function (require, exports, module) {
             // Load the initial project after extensions have loaded
             extensionLoaderPromise.always(function () {
                 // Finish UI initialization
-                ProjectManager.getInitialProjectPath().done(function (initialProjectPath) {
-                    ProjectManager.openProject(initialProjectPath).always(function () {
-                        _initTest();
-                        
-                        // If this is the first launch, and we have an index.html file in the project folder (which should be
-                        // the samples folder on first launch), open it automatically. (We explicitly check for the
-                        // samples folder in case this is the first time we're launching Brackets after upgrading from
-                        // an old version that might not have set the "afterFirstLaunch" pref.)
-                        var prefs = PreferencesManager.getPreferenceStorage(module),
-                            deferred = new $.Deferred();
-                        //TODO: Remove preferences migration code
-                        PreferencesManager.handleClientIdChange(prefs, "com.adobe.brackets.startup");
-                        
-                        prefs.getValueAsync("afterFirstLaunch").done(function (afterFirstLaunch) {
-                            if (!params.get("skipSampleProjectLoad") && !afterFirstLaunch) {
-                                
-                                if (ProjectManager.isWelcomeProjectPath(initialProjectPath)) {
-                                    var dirEntry = new NativeFileSystem.DirectoryEntry(initialProjectPath);
-                                    
-                                    dirEntry.getFile("index.html", {}, function (fileEntry) {
-                                        var promise = CommandManager.execute(Commands.FILE_ADD_TO_WORKING_SET, { fullPath: fileEntry.fullPath });
-                                        promise.then(deferred.resolve, deferred.reject);
-                                    }, deferred.reject);
-                                } else {
-                                    deferred.resolve();
-                                }
-                            } else {
-                                deferred.resolve();
-                            }
-                        }).fail(function () {
-                            deferred.resolve();
-                        }).always(function () {
-                            prefs.setValueAsync("afterFirstLaunch", "true");
-                        });
-                        
-                        deferred.always(function () {
-                            // Signal that Brackets is loaded
-                            AppInit._dispatchReady(AppInit.APP_READY);
+                var initialProjectPath = ProjectManager.getInitialProjectPath();
+                ProjectManager.openProject(initialProjectPath).always(function () {
+                    _initTest();
+                    
+                    // If this is the first launch, and we have an index.html file in the project folder (which should be
+                    // the samples folder on first launch), open it automatically. (We explicitly check for the
+                    // samples folder in case this is the first time we're launching Brackets after upgrading from
+                    // an old version that might not have set the "afterFirstLaunch" pref.)
+                    var prefs = PreferencesManager.getPreferenceStorage(module),
+                        deferred = new $.Deferred();
+                    //TODO: Remove preferences migration code
+                    PreferencesManager.handleClientIdChange(prefs, "com.adobe.brackets.startup");
+                    
+                    if (!params.get("skipSampleProjectLoad") && !prefs.getValue("afterFirstLaunch")) {
+                        prefs.setValue("afterFirstLaunch", "true");
+                        if (ProjectManager.isWelcomeProjectPath(initialProjectPath)) {
+                            var dirEntry = new NativeFileSystem.DirectoryEntry(initialProjectPath);
                             
-                            PerfUtils.addMeasurement("Application Startup");
-                        });
-                        
-                        // See if any startup files were passed to the application
-                        if (brackets.app.getPendingFilesToOpen) {
-                            brackets.app.getPendingFilesToOpen(function (err, files) {
-                                files.forEach(function (filename) {
-                                    CommandManager.execute(Commands.FILE_OPEN, { fullPath: filename });
-                                });
-                            });
+                            dirEntry.getFile("index.html", {}, function (fileEntry) {
+                                var promise = CommandManager.execute(Commands.FILE_ADD_TO_WORKING_SET, { fullPath: fileEntry.fullPath });
+                                promise.then(deferred.resolve, deferred.reject);
+                            }, deferred.reject);
+                        } else {
+                            deferred.resolve();
                         }
+                    } else {
+                        deferred.resolve();
+                    }
+                    
+                    deferred.always(function () {
+                        // Signal that Brackets is loaded
+                        AppInit._dispatchReady(AppInit.APP_READY);
+                        
+                        PerfUtils.addMeasurement("Application Startup");
                     });
+                    
+                    // See if any startup files were passed to the application
+                    if (brackets.app.getPendingFilesToOpen) {
+                        brackets.app.getPendingFilesToOpen(function (err, files) {
+                            files.forEach(function (filename) {
+                                CommandManager.execute(Commands.FILE_OPEN, { fullPath: filename });
+                            });
+                        });
+                    }
                 });
             });
         });
