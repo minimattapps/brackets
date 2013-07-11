@@ -45,6 +45,15 @@ var fullscreen = false;
    
    
     function handleFolderSelect(evt) {
+	   var savedir = "";
+   if (ProjectManager.getSelectedItem() == null){
+   savedir = "";
+   } else {
+   savedir = ProjectManager.getSelectedItem().fullPath;
+  if (savedir.indexOf(".") != -1){
+  savedir = savedir.substring(0, savedir.lastIndexOf('/')) + "/"; 
+ }
+ }
     var files = evt.target.files; // FileList object
     
     // files is a FileList of File objects. List some properties.
@@ -55,7 +64,7 @@ var fullscreen = false;
     console.log(dir);
     
  
-    brackets.fs.makedir(dir,null,function(error){
+    brackets.fs.makedir(savedir + dir,null,function(error){
     console.log("Created Directory");
     });
     
@@ -67,7 +76,7 @@ var fullscreen = false;
       reader.onload = (function(theFile) {
         return function(e) {
        
-                brackets.fs.writeFile(theFile.webkitRelativePath,e.target.result,null,function(error){
+                brackets.fs.writeFile(savedir + theFile.webkitRelativePath,e.target.result,null,function(error){
     console.log("Created Files");
      ProjectManager.refreshFileTree();
     });
@@ -84,11 +93,12 @@ var fullscreen = false;
   }
   
   function handleFileSelect(evt) {
-   var savedir = ProjectManager.getSelectedItem().fullPath;
-   if (savedir == null){
+   var savedir = "";
+   if (ProjectManager.getSelectedItem() == null){
    savedir = "";
    } else {
-  if (ProjectManager.getSelectedItem().isFile){
+   savedir = ProjectManager.getSelectedItem().fullPath;
+  if (savedir.indexOf(".") != -1){
   savedir = savedir.substring(0, savedir.lastIndexOf('/')) + "/"; 
  }
  }
@@ -131,12 +141,15 @@ var fullscreen = false;
 
   document.getElementById('folderinput').addEventListener('change', handleFolderSelect, false);   
    document.getElementById("folderinput").click();
+    document.getElementById("inputfiles").reset();
+   
    }
    
      function importFile(){
      
   document.getElementById('fileinput').addEventListener('change', handleFileSelect, false);   
    document.getElementById("fileinput").click();
+   document.getElementById("inputfiles").reset();
    }
    
    //Create HTTP Server

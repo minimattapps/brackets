@@ -68,48 +68,38 @@ define(function (require, exports, module) {
      */
     function openDroppedFiles(files) {
         var errorFiles = [];
-        
-        return Async.doInParallel(files, function (file) {
-            var result = new $.Deferred();
+        var current = 0;
+        for(var i = 0; i < files.length; i++){
             
-            // Only open text files
-            brackets.fs.stat(file, function (err, stat) {
-                if (!err && stat.isFile() && FileUtils.isTextFile(file)) {
-                    CommandManager.execute(Commands.FILE_ADD_TO_WORKING_SET,
-                                           {fullPath: file})
-                        .done(function () {
-                            result.resolve();
-                        })
-                        .fail(function () {
-                            errorFiles.push(file);
-                            result.reject();
-                        });
-                } else {
-                    errorFiles.push(file);
-                    result.reject();
-                }
-            });
+            var file = files[i];
+            loadnext(file);
+          } 
             
-            return result.promise();
-        }, false)
-            .fail(function () {
-                var message = Strings.ERROR_OPENING_FILES;
-                
-                message += "<ul>";
-                errorFiles.forEach(function (file) {
-                    message += "<li><span class='dialog-filename'>" +
-                        StringUtils.breakableUrl(ProjectManager.makeProjectRelativeIfPossible(file)) +
-                        "</span></li>";
-                });
-                message += "</ul>";
-                
-                Dialogs.showModalDialog(
-                    DefaultDialogs.DIALOG_ID_ERROR,
-                    Strings.ERROR_OPENING_FILE_TITLE,
-                    message
-                );
-            });
+  
     }
+	
+	function loadnext(file){
+	 var reader = new FileReader();
+
+       reader.onloadend = function(e) {
+        var result = e.target.result;
+		   var savedir = "";
+   if (ProjectManager.getSelectedItem() == null){
+   savedir = "";
+   } else {
+   savedir = ProjectManager.getSelectedItem().fullPath;
+  if (savedir.indexOf(".") != -1){
+  savedir = savedir.substring(0, savedir.lastIndexOf('/')) + "/"; 
+ }
+ }
+		brackets.fs.writeFile(savedir + file.name,result,null,function(error){
+		ProjectManager.refreshFileTree();
+		});
+		
+       };
+
+       reader.readAsText(file);
+	}
     
     // Export public API
     exports.isValidDrop         = isValidDrop;

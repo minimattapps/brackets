@@ -102,14 +102,7 @@ define(function (require, exports, module) {
             // Check file timestamp / existence
             doc.file.getMetadata(
                 function (metadata) {
-                    // Does file's timestamp differ from last sync time on the Document?
-                    if (metadata.modificationTime.getTime() !== doc.diskTimestamp.getTime()) {
-                        if (doc.isDirty) {
-                            editConflicts.push(doc);
-                        } else {
-                            toReload.push(doc);
-                        }
-                    }
+                 
                     result.resolve();
                 },
                 function (error) {

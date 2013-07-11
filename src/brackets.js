@@ -290,9 +290,9 @@ define(function (require, exports, module) {
                 if (event.originalEvent.dataTransfer.files) {
                     event.stopPropagation();
                     event.preventDefault();
-                    if (DragAndDrop.isValidDrop(event.originalEvent.dataTransfer.items)) {
+                  
                         dropEffect = "copy";
-                    }
+                    
                     event.originalEvent.dataTransfer.dropEffect = dropEffect;
                 }
             })
