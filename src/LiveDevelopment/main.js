@@ -118,22 +118,18 @@ define(function main(require, exports, module) {
         if (LiveDevelopment.status >= LiveDevelopment.STATUS_CONNECTING) {
             LiveDevelopment.close();
         } else {
-            prefs.getValue("afterFirstLaunch").done(function (afterFirstLaunch) {
-                if (!params.get("skipLiveDevelopmentInfo") && !afterFirstLaunch) {
-                    prefs.setValue("afterFirstLaunch", "true");
-                    Dialogs.showModalDialog(
-                        DefaultDialogs.DIALOG_ID_INFO,
-                        Strings.LIVE_DEVELOPMENT_INFO_TITLE,
-                        Strings.LIVE_DEVELOPMENT_INFO_MESSAGE
-                    ).done(function (id) {
-                        LiveDevelopment.open();
-                    });
-                } else {
+            if (!params.get("skipLiveDevelopmentInfo") && !prefs.getValue("afterFirstLaunch")) {
+                prefs.setValue("afterFirstLaunch", "true");
+                Dialogs.showModalDialog(
+                    DefaultDialogs.DIALOG_ID_INFO,
+                    Strings.LIVE_DEVELOPMENT_INFO_TITLE,
+                    Strings.LIVE_DEVELOPMENT_INFO_MESSAGE
+                ).done(function (id) {
                     LiveDevelopment.open();
-                }
-            }).fail(function (error) {
-                console.error(error);
-            });
+                });
+            } else {
+                LiveDevelopment.open();
+            }
         }
     }
 
@@ -257,10 +253,7 @@ define(function main(require, exports, module) {
     //TODO: Remove preferences migration code
     PreferencesManager.handleClientIdChange(prefs, "com.adobe.brackets.live-development");
     
-    config.highlight = true;
-    prefs.getValueAsync("highlight").done(function (highlight) {
-        config.highlight = highlight;
-    });
+    config.highlight = prefs.getValue("highlight");
    
     // init commands
     CommandManager.register(Strings.CMD_LIVE_FILE_PREVIEW,  Commands.FILE_LIVE_FILE_PREVIEW, _handleGoLiveCommand);

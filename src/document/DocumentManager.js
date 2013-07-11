@@ -696,7 +696,7 @@ define(function (require, exports, module) {
         });
 
         // append file root to make file list unique for each project
-        _prefs.setValueAsync("files_" + projectRoot.fullPath, files);
+        _prefs.setValue("files_" + projectRoot.fullPath, files);
     }
 
     /**
