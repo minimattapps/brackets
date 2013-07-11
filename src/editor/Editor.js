@@ -84,25 +84,25 @@ define(function (require, exports, module) {
     PreferencesManager.handleClientIdChange(_prefs, "com.adobe.brackets.Editor");
     
     /** @type {boolean}  Global setting: When inserting new text, use tab characters? (instead of spaces) */
-    var _useTabChar = _prefs.getValue("useTabChar");
+    var _useTabChar = defaultPrefs.useTabChar;
     
     /** @type {number}  Global setting: Tab size */
-    var _tabSize = _prefs.getValue("tabSize");
+    var _tabSize = defaultPrefs.tabSize;
     
     /** @type {number}  Global setting: Space units (i.e. number of spaces when indenting) */
-    var _spaceUnits = _prefs.getValue("spaceUnits");
+    var _spaceUnits = defaultPrefs.spaceUnits;
     
     /** @type {boolean}  Global setting: Auto closes (, {, [, " and ' */
-    var _closeBrackets = _prefs.getValue("closeBrackets");
+    var _closeBrackets = defaultPrefs.closeBrackets;
     
     /** @type {boolean}  Global setting: Show line numbers in the gutter */
-    var _showLineNumbers = _prefs.getValue("showLineNumbers");
+    var _showLineNumbers = defaultPrefs.showLineNumbers;
 
     /** @type {boolean}  Global setting: Highlight the background of the line that has the cursor */
-    var _styleActiveLine = _prefs.getValue("styleActiveLine");
+    var _styleActiveLine = defaultPrefs.styleActiveLine;
 
     /** @type {boolean}  Global setting: Auto wrap lines */
-    var _wordWrap = _prefs.getValue("wordWrap");
+    var _wordWrap = defaultPrefs.wordWrap;
 
     /** @type {boolean}  Guard flag to prevent focus() reentrancy (via blur handlers), even across Editors */
     var _duringFocus = false;
@@ -1350,7 +1350,7 @@ define(function (require, exports, module) {
      */
     function _setEditorOptionAndPref(value, cmOption, prefName) {
         _setEditorOption(value, cmOption);
-        _prefs.setValue(prefName, value);
+        _prefs.setValueAsync(prefName, value);
     }
     
     /**
@@ -1457,4 +1457,56 @@ define(function (require, exports, module) {
     exports.Editor                  = Editor;
     exports.BOUNDARY_CHECK_NORMAL   = BOUNDARY_CHECK_NORMAL;
     exports.BOUNDARY_IGNORE_TOP     = BOUNDARY_IGNORE_TOP;
+    
+    
+    
+    
+    _prefs.getValueAsync("useTabChar").done(function (useTabChar) {
+        if (useTabChar !== _useTabChar) {
+            _useTabChar = useTabChar;
+            Editor.setUseTabChar(useTabChar);
+        }
+    });
+    
+    _prefs.getValueAsync("tabSize").done(function (tabSize) {
+        if (tabSize !== _tabSize) {
+            _tabSize = tabSize;
+            Editor.setTabSize(tabSize);
+        }
+    });
+    
+    _prefs.getValueAsync("spaceUnits").done(function (spaceUnits) {
+        if (_spaceUnits !== spaceUnits) {
+            _spaceUnits = spaceUnits;
+            Editor.setSpaceUnits(spaceUnits);
+        }
+    });
+    
+    _prefs.getValueAsync("closeBrackets").done(function (closeBrackets) {
+        if (_closeBrackets !== closeBrackets) {
+            _closeBrackets = closeBrackets;
+            Editor.setCloseBrackets(closeBrackets);
+        }
+    });
+    
+    _prefs.getValueAsync("showLineNumbers").done(function (showLineNumbers) {
+        if (_showLineNumbers !== showLineNumbers) {
+            _showLineNumbers = showLineNumbers;
+            Editor.setShowLineNumbers(showLineNumbers);
+        }
+    });
+
+    _prefs.getValueAsync("styleActiveLine").done(function (styleActiveLine) {
+        if (_styleActiveLine !== styleActiveLine) {
+            _styleActiveLine = styleActiveLine;
+            Editor.setShowActiveLine(styleActiveLine);
+        }
+    });
+
+    _prefs.getValueAsync("wordWrap").done(function (wordWrap) {
+        if (_wordWrap !== wordWrap) {
+            _wordWrap = wordWrap;
+            Editor.setWordWrap(wordWrap);
+        }
+    });
 });
