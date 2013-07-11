@@ -300,11 +300,11 @@ define(function (require, exports, module) {
                 if (event.originalEvent.dataTransfer.files) {
                     event.stopPropagation();
                     event.preventDefault();
-                    brackets.app.getDroppedFiles(function (err, files) {
-                        if (!err) {
+                    var files = event.originalEvent.dataTransfer.files;
+                        console.log(files);
                             DragAndDrop.openDroppedFiles(files);
-                        }
-                    });
+                        
+                    
                 }
             });
         
