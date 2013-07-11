@@ -19,6 +19,7 @@
     "clipboardRead",
     "clipboardWrite",
     "storage",
+     {"socket":["tcp-connect", "tcp-listen"]},
     "unlimitedStorage",
     {"fileSystem": ["write"]}
   ],
