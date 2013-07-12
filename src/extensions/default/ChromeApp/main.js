@@ -153,7 +153,10 @@ var fullscreen = false;
    }
    
    //Create HTTP Server
+   var tcpport = Math.floor(Math.random() * (25000 - 20000 + 1)) +  20000;
    
+   brackets.fs.tcpport = tcpport;
+   console.log(tcpport);
     var socket = chrome.socket;
     var serverid;
   var socketInfo;
@@ -161,7 +164,7 @@ var fullscreen = false;
    console.log("HTTP Server Created");
   socketInfo = _socketInfo;  // Cache globally [eek]
   serverid = _socketInfo.socketId;
-  socket.listen(socketInfo.socketId, "127.0.0.1", 8081, 1, function(result) {
+  socket.listen(socketInfo.socketId, "127.0.0.1", tcpport, 20, function(result) {
     //Accept the first response
     socket.accept(socketInfo.socketId, onAccept);
   });
@@ -183,11 +186,11 @@ var onAccept = function(acceptInfo) {
     
     if (requesttype == "GET"){
 
-
+       requestfile = decodeURI(requestfile);
 
        brackets.fs.readFile(requestfile,null,function (error,result){
-
-
+        
+        console.log(error);
 
         writeResponse(acceptInfo.socketId,false,"200 OK","text/html",result,true);    
  
@@ -235,6 +238,7 @@ var onAccept = function(acceptInfo) {
 
   
    var stringToUint8Array = function(string) {
+
     var buffer = new ArrayBuffer(string.length);
     var view = new Uint8Array(buffer);
     for(var i = 0; i < string.length; i++) {
@@ -244,6 +248,7 @@ var onAccept = function(acceptInfo) {
   };
 
   var arrayBufferToString = function(buffer) {
+ 
     var str = '';
     var uArrayVal = new Uint8Array(buffer);
     for(var s = 0; s < uArrayVal.length; s++) {

@@ -114,9 +114,14 @@ define(function main(require, exports, module) {
     }
 
     /** Toggles LiveDevelopment and synchronizes the state of UI elements that reports LiveDevelopment status */
+    var LIVE_DEV_OFF = 0;
+    var LIVE_DEV_CONNECTING = 1;
+    var LIVE_DEV_ACTIVE = 2; 
+    var LIVE_DEV_STATUS = LIVE_DEV_OFF;
+    var LIVE_DEV_CURRENT_FILE = "";
     function _handleGoLiveCommand() {
-        if (LiveDevelopment.status >= LiveDevelopment.STATUS_CONNECTING) {
-            LiveDevelopment.close();
+        if (LIVE_DEV_STATUS == LIVE_DEV_ACTIVE || LIVE_DEV_STATUS == LIVE_DEV_CONNECTING) {
+          LiveDevOff();
         } else {
             if (!params.get("skipLiveDevelopmentInfo") && !prefs.getValue("afterFirstLaunch")) {
                 prefs.setValue("afterFirstLaunch", "true");
@@ -125,13 +130,118 @@ define(function main(require, exports, module) {
                     Strings.LIVE_DEVELOPMENT_INFO_TITLE,
                     Strings.LIVE_DEVELOPMENT_INFO_MESSAGE
                 ).done(function (id) {
-                    LiveDevelopment.open();
+		    if (DocumentManager.getCurrentDocument() != null){
+		        var page = DocumentManager.getCurrentDocument().file.name;
+                       var ext = page.substr(page.lastIndexOf('.') + 1).toLowerCase();
+		    if (ext == "html" || ext == "htm"){
+                    LiveDevOn();
+		    } else {
+		    Dialogs.showModalDialog(
+                    DefaultDialogs.DIALOG_ID_INFO,
+                    "Error - Live Development",
+                    "Please open a HTML file first"
+                ).done(function (id) {});
+		    
+		    }
+		    
+		    } else {
+		    Dialogs.showModalDialog(
+                    DefaultDialogs.DIALOG_ID_INFO,
+                    "Error - Live Development",
+                    "Please open a HTML file first"
+                ).done(function (id) {});
+		    
+		    }
                 });
             } else {
-                LiveDevelopment.open();
+               if (DocumentManager.getCurrentDocument() != null){
+	       var page = DocumentManager.getCurrentDocument().file.name;
+                       var ext = page.substr(page.lastIndexOf('.') + 1).toLowerCase();
+		    if (ext == "html" || ext == "htm"){
+                    LiveDevOn();
+		    } else {
+		    Dialogs.showModalDialog(
+                    DefaultDialogs.DIALOG_ID_INFO,
+                    "Error - Live Development",
+                    "Please open a HTML file first"
+                ).done(function (id) {});
+		    
+		    }
+		    } else {
+		    Dialogs.showModalDialog(
+                    DefaultDialogs.DIALOG_ID_INFO,
+                    "Error - Live Development",
+                    "Please open a HTML file first"
+                ).done(function (id) {});
+		    
+		    }
             }
         }
     }
+    
+    var AppExtensionId = "hfhmgjnmhoohakhkieckckiheidgmkfd";
+
+    var port = null;
+    function LiveDevOn(){
+     //Show File in Browser
+     console.log(DocumentManager.getCurrentDocument());
+     
+     port = chrome.runtime.connect(AppExtensionId);
+     
+     
+        port.onMessage.addListener(function(msg) {
+        if (msg.type == "STATUS"){
+	if (msg.connected == true){
+	LIVE_DEV_STATUS = LIVE_DEV_ACTIVE;
+	document.getElementById("toolbar-go-live").className = "success";
+	} 
+
+	}
+	
+	if (msg.type == "TABCLOSED"){
+	LiveDevOff();
+	}
+        });
+
+		LIVE_DEV_STATUS = LIVE_DEV_CONNECTING;
+		console.log("Live Dev On");
+		document.getElementById("toolbar-go-live").className = "info";
+                port.postMessage({type: "ACTIVE",active: true, file: DocumentManager.getCurrentDocument().file.fullPath, port: brackets.fs.tcpport});
+		LIVE_DEV_CURRENT_FILE = DocumentManager.getCurrentDocument().file.fullPath;
+		
+    }
+    
+    function LiveDevOff(){
+      //Close Tab
+      if (LIVE_DEV_STATUS == LIVE_DEV_ACTIVE){
+            port.postMessage({type: "ACTIVE",active: false});
+            port.disconnect();
+	    }
+	    LIVE_DEV_STATUS = LIVE_DEV_OFF;
+	    console.log("Live Dev Off");
+	    document.getElementById("toolbar-go-live").className = "";
+	    
+    
+    }
+    
+    function RefreshPage(page){
+    if (LIVE_DEV_STATUS == LIVE_DEV_ACTIVE){
+    var ext = page.substr(page.lastIndexOf('.') + 1).toLowerCase();
+    if (ext == "html" || ext == "htm"){
+    if (page == LIVE_DEV_CURRENT_FILE){
+    console.log("Refreshing " + page);
+    port.postMessage({type: "REFRESH"});
+    } else {
+    console.log("Changing File " + page);
+    port.postMessage({type: "UPDATE", file: page});
+    }
+    }
+    }
+    }
+    
+    exports.RefreshPage = RefreshPage;
+    
+ 
 
     /** Called on status change */
     function _showStatusChangeReason(reason) {

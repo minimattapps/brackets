@@ -23,10 +23,13 @@
 
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50 */
-/*global define, brackets, Dropbox */
+/*global define, brackets*/
 define(function (require, exports, module) {
     "use strict";
-
+    
+    var DocumentManager = null;
+    var LiveDevelopment = null;
+    
 
     
     var client;
@@ -180,17 +183,22 @@ define(function (require, exports, module) {
        reader.readAsText(file);
     }, errorHandler);
 
-  }, errorHandler);
+  }, function (error){
+  callback(error.code,"");
+  });
     }
     
     function writeFile(path, data, encoding, callback) {
-        fs.root.getFile(path, {create: true}, function(fileEntry) {
+     fs.root.getFile(path, {create: true}, function(fileEntry) {
+     fileEntry.remove(function(){
+           fs.root.getFile(path, {create: true}, function(fileEntry) {
 
     // Create a FileWriter object for our FileEntry (log.txt).
     fileEntry.createWriter(function(fileWriter) {
 
       fileWriter.onwriteend = function(e) {
         console.log('Write completed.');
+	LiveDevelopment.RefreshPage(path);
 		callback(brackets.fs.NO_ERROR);
       };
 
@@ -206,6 +214,10 @@ define(function (require, exports, module) {
     }, errorHandler);
 
   }, errorHandler);
+     },function(){});
+     }, function(error){});
+    
+  
     }
     
 function rename(oldPath, newPath, callback) {
@@ -278,7 +290,8 @@ function rename(oldPath, newPath, callback) {
         brackets.fs.rename = rename;
 		brackets.fs.moveToTrash = unlink;
         brackets.fs.showOpenDialog = showOpenDialog;
-        
+          DocumentManager     = brackets.getModule("document/DocumentManager");
+      LiveDevelopment     = brackets.getModule("LiveDevelopment/main");
         // Error codes
         brackets.fs.NO_ERROR                    = 0;
         brackets.fs.ERR_UNKNOWN                 = 1;
@@ -324,6 +337,7 @@ function errorHandler(e) {
 
     
     function init() {
+    
        window.webkitRequestFileSystem(window.PERSISTENT, 1024*1024*1024*1024 /*1TB*/, onInitFs, errorHandler);
        
     }
