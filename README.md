@@ -1,7 +1,7 @@
 Welcome to Brackets! [![Build Status](https://travis-ci.org/adobe/brackets.png?branch=master)](https://travis-ci.org/adobe/brackets)
 -------------------
 
-Installers for the latest build can be [downloaded here](http://download.brackets.io/).
+Installers for the latest build can be [downloaded here](http://brackets.io/).
 
 This is an early version of Brackets, a code editor for HTML, CSS
 and JavaScript that's *built* in HTML, CSS and JavaScript. 
@@ -53,7 +53,7 @@ if you're interested, check out the
 [Linux Version](https://github.com/adobe/brackets/wiki/Linux-Version) wiki page.
 
 You can download stable builds of Brackets from 
-[download.brackets.io](http://download.brackets.io). If you want to pull the repo 
+[brackets.io](http://brackets.io). If you want to pull the repo 
 directly via git, see [How to Hack on Brackets](https://github.com/adobe/brackets/wiki/How-to-Hack-on-Brackets)
 for instructions on how to get everything. 
 
